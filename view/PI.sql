@@ -77,7 +77,6 @@ CREATE TABLE produto_distrib (
     id INT(11) NOT NULL AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
     unidade VARCHAR(20) NOT NULL,
-    estoque DECIMAL(10,3) NOT NULL DEFAULT 0.000,
     preco DECIMAL(10,2) NOT NULL,
     atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     ON UPDATE CURRENT_TIMESTAMP,
@@ -113,6 +112,7 @@ CREATE TABLE receita (
     REFERENCES cliente(id_usuario)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
 CREATE TABLE receita_ingrediente (
     id_receita INT(11) NOT NULL,
     id_ingrediente INT(11) NOT NULL,
@@ -145,60 +145,7 @@ CREATE TABLE receita_prod_distrib (
     REFERENCES produto_distrib(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE pedido (
-    id INT(11) NOT NULL AUTO_INCREMENT,
-    id_cliente INT(11) NOT NULL,
-    id_culin INT(11) NOT NULL,
-    data DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('PENDENTE','CONFIRMADO','ENVIADO','ENTREGUE','CANCELADO')
-    NOT NULL DEFAULT 'PENDENTE',
 
-    PRIMARY KEY (id),
-
-    CONSTRAINT fk_pedido_cliente
-    FOREIGN KEY (id_cliente)
-    REFERENCES cliente(id_usuario),
-
-    CONSTRAINT fk_pedido_culin
-    FOREIGN KEY (id_culin)
-    REFERENCES culinarista(id_culin)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE item_pedido (
-    id_pedido INT(11) NOT NULL,
-    id_produto INT(11) NOT NULL,
-    quantidade DECIMAL(10,3) NOT NULL,
-    preco_unit DECIMAL(10,2) NOT NULL,
-
-    PRIMARY KEY (id_pedido, id_produto),
-
-    CONSTRAINT fk_itempedido_pedido
-    FOREIGN KEY (id_pedido)
-    REFERENCES pedido(id),
-
-    CONSTRAINT fk_itempedido_produto
-    FOREIGN KEY (id_produto)
-    REFERENCES produto_distrib(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE credito_cliente (
-    id_cliente INT(11) NOT NULL,
-    id_culin INT(11) NOT NULL,
-    limite DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    utilizado DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (id_cliente),
-
-    CONSTRAINT fk_credito_cliente
-    FOREIGN KEY (id_cliente)
-    REFERENCES cliente(id_usuario),
-
-    CONSTRAINT fk_credito_culin
-    FOREIGN KEY (id_culin)
-    REFERENCES culinarista(id_culin)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE visita (
     id INT(11) NOT NULL AUTO_INCREMENT,
