@@ -1,11 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: localhost
--- Tempo de geração: 29/05/2026 às 15:22
--- Versão do servidor: 10.4.32-MariaDB
--- Versão do PHP: 8.2.12
+
 
 CREATE DATABASE IF NOT EXISTS PI
 CHARACTER SET utf8mb4
@@ -243,83 +236,4 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE TRIGGER trg_credito_confirmar
-AFTER UPDATE ON pedido
-FOR EACH ROW
-BEGIN
 
-    DECLARE total DECIMAL(10,2);
-
-    IF NEW.status = 'CONFIRMADO'
-    AND OLD.status != 'CONFIRMADO' THEN
-
-        SELECT SUM(quantidade * preco_unit)
-        INTO total
-        FROM item_pedido
-        WHERE id_pedido = NEW.id;
-
-        UPDATE credito_cliente
-        SET utilizado = utilizado + total
-        WHERE id_cliente = NEW.id_cliente;
-
-    END IF;
-
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE TRIGGER trg_credito_cancelar
-AFTER UPDATE ON pedido
-FOR EACH ROW
-BEGIN
-
-    DECLARE total DECIMAL(10,2);
-
-    IF NEW.status = 'CANCELADO'
-    AND OLD.status = 'CONFIRMADO' THEN
-
-        SELECT SUM(quantidade * preco_unit)
-        INTO total
-        FROM item_pedido
-        WHERE id_pedido = NEW.id;
-
-        UPDATE credito_cliente
-        SET utilizado = utilizado - total
-        WHERE id_cliente = NEW.id_cliente;
-
-    END IF;
-
-END$$
-
-DELIMITER ;
-
-COMMIT;
-
--- Ajustes para bancos ja importados antes desta versao:
--- permite cliente sem culinarista vinculado no momento do cadastro
--- e cria os registros de perfil para usuarios existentes.
-ALTER TABLE cliente
-MODIFY id_culin INT(11) NULL;
-
-INSERT IGNORE INTO culinarista (id_culin)
-SELECT id
-FROM usuario
-WHERE tipo = 'CULINARISTA';
-
-INSERT IGNORE INTO cliente (id_usuario, id_culin)
-SELECT id, NULL
-FROM usuario
-WHERE tipo = 'CLIENTE';
-
--- Usuario inicial para teste do login.
--- Email: admin@pi.com
--- Senha: 12345678
-INSERT IGNORE INTO usuario (nome, email, senha, tipo)
-VALUES ('Administrador', 'admin@pi.com', '12345678', 'CULINARISTA');
-
-INSERT IGNORE INTO culinarista (id_culin)
-SELECT id
-FROM usuario
-WHERE email = 'admin@pi.com';
